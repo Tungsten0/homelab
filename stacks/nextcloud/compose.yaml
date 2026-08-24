@@ -1,0 +1,122 @@
+services:
+
+  db:
+    image: postgres:17-alpine
+    container_name: nextcloud-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+
+    volumes:
+      - db:/var/lib/postgresql/data
+
+    networks:
+      - nextcloud
+
+
+  redis:
+    image: redis:8-alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+
+    networks:
+      - nextcloud
+
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: homelab-nextcloud:34-apache-smb
+    container_name: nextcloud-app
+    restart: unless-stopped
+
+    depends_on:
+      - db
+      - redis
+
+    ports:
+      - "8081:80"
+
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+
+      NEXTCLOUD_ADMIN_USER_FILE: /run/secrets/nextcloud_admin_user
+      NEXTCLOUD_ADMIN_PASSWORD_FILE: /run/secrets/nextcloud_admin_password
+
+      APACHE_BODY_LIMIT: 17179869184
+
+      REDIS_HOST: redis
+
+      PHP_MEMORY_LIMIT: 1024M
+      PHP_UPLOAD_LIMIT: 16G
+
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+      - nextcloud_admin_user
+      - nextcloud_admin_password
+
+    volumes:
+      - nextcloud:/var/www/html
+
+    networks:
+      - nextcloud
+
+
+  cron:
+    image: homelab-nextcloud:34-apache-smb
+    container_name: nextcloud-cron
+    restart: unless-stopped
+
+    entrypoint: /cron.sh
+
+    depends_on:
+      - db
+      - redis
+      - app
+
+    volumes:
+      - nextcloud:/var/www/html
+
+    networks:
+      - nextcloud
+
+
+volumes:
+  nextcloud:
+  db:
+
+
+networks:
+  nextcloud:
+
+
+secrets:
+  postgres_db:
+    file: ./secrets/postgres_db
+
+  postgres_user:
+    file: ./secrets/postgres_user
+
+  postgres_password:
+    file: ./secrets/postgres_password
+
+  nextcloud_admin_user:
+    file: ./secrets/nextcloud_admin_user
+
+  nextcloud_admin_password:
+    file: ./secrets/nextcloud_admin_password
