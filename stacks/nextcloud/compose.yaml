@@ -82,6 +82,9 @@ services:
     container_name: nextcloud-cron
     restart: unless-stopped
 
+    environment:
+      REDIS_HOST: redis
+
     entrypoint: /cron.sh
 
     depends_on:
