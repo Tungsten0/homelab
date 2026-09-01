@@ -11,3 +11,17 @@ scrape_configs:
     static_configs:
       - targets:
           - prometheus:9090
+
+  - job_name: node-exporter
+    static_configs:
+      - targets:
+          - 192.168.2.131:9100
+        labels:
+          host: docker01
+
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - 192.168.2.131:8080
+        labels:
+          host: docker01
