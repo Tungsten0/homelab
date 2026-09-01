@@ -22,6 +22,16 @@ services:
       - "9090:9090"
     logging: *default-logging
 
+  pve-exporter:
+    image: prompve/prometheus-pve-exporter:3.10.0
+    init: true
+    restart: unless-stopped
+    volumes:
+      - ./secrets/pve.yml:/etc/prometheus/pve.yml:ro
+    ports:
+      - "127.0.0.1:9221:9221"
+    logging: *default-logging
+
   grafana:
     image: grafana/grafana:13.2.0
     restart: unless-stopped
