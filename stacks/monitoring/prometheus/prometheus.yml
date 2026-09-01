@@ -19,6 +19,12 @@ scrape_configs:
         labels:
           host: docker01
 
+      - targets:
+          - 192.168.2.127:9100
+        labels:
+          host: fileserver
+
+
   - job_name: cadvisor
     static_configs:
       - targets:
