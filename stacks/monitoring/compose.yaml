@@ -28,8 +28,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./secrets/pve.yml:/etc/prometheus/pve.yml:ro
-    ports:
-      - "127.0.0.1:9221:9221"
     logging: *default-logging
 
   grafana:
