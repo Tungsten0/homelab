@@ -14,7 +14,7 @@ services:
     pid: host
     command:
       - --path.rootfs=/host
-      - --web.listen-address=:9100
+      - --web.listen-address=192.168.2.131:9100
     volumes:
       - /:/host:ro,rslave
     logging: *default-logging
@@ -35,5 +35,5 @@ services:
       - /srv/docker/data:/srv/docker/data:ro
       - /dev/disk:/dev/disk:ro
     ports:
-      - "8080:8080"
+      - "192.168.2.131:8080:8080"
     logging: *default-logging
